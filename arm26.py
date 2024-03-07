@@ -31,7 +31,7 @@ class Arm26:
                 return
             if not self.init_visuals:
                 self.viewer.user_scn.ngeom += 1  # increment ngeom
-                # initialise a new capsule, add it to the scene using mjv_makeConnector
+                # initialise a new sphere, add it to the scene using mjv_makeConnector
                 mujoco.mjv_initGeom(
                     self.viewer.user_scn.geoms[i],
                     type=mujoco.mjtGeom.mjGEOM_SPHERE,
@@ -77,6 +77,9 @@ class Arm26:
         self.mj_data.ctrl[:] = action
         for i in range(FRAMESKIP):
             mujoco.mj_step(self.mj_model, self.mj_data)
+        done = 0
+        reward = 0
+        return self.compute_obs(), reward, done, {}
 
     def render(self):
         if not hasattr(self, "viewer"):
