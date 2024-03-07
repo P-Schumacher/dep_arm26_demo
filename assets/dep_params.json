@@ -1,0 +1,20 @@
+{
+
+"DEP":{
+    "kappa": 10.0,
+    "tau": 80,
+    "bias_rate":  0.00002,
+    "time_dist":  60,
+    "normalization":  "independent",
+    "s4avg": 2,
+    "buffer_size": 200,
+    "sensor_delay": 1,
+    "regularization": 32,
+    "with_learning": true,
+    "q_norm_selector": "l2"
+}
+
+
+
+
+}
