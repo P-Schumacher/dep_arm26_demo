@@ -12,4 +12,3 @@ then install the requirements with
 and then run
 
 ```python dep_arm26_demo/arm26.py```
-

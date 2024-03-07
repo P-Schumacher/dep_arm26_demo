@@ -8,6 +8,7 @@ from dep_controller import DEP
 
 FRAMESKIP = 2
 
+
 class Arm26:
     def __init__(self):
         curr_dir = os.path.dirname(__file__)
@@ -26,23 +27,24 @@ class Arm26:
 
     def draw_sphere(self):
         if hasattr(self, "viewer"):
-            scene = self.viewer.user_scn
             if self.viewer.user_scn.ngeom >= self.viewer.user_scn.maxgeom:
                 return
             if not self.init_visuals:
                 self.viewer.user_scn.ngeom += 1  # increment ngeom
                 # initialise a new capsule, add it to the scene using mjv_makeConnector
                 mujoco.mjv_initGeom(
-                          self.viewer.user_scn.geoms[i],
-                          type=mujoco.mjtGeom.mjGEOM_SPHERE,
-                          size=[0.02, 0, 0],
-                          pos=np.array([self.target[0], self.target[1], 0]),
-                          mat=np.eye(3).flatten(),
-                          rgba=np.array([1.0, 0.1, 0.1, 1.0])
-                      )
+                    self.viewer.user_scn.geoms[i],
+                    type=mujoco.mjtGeom.mjGEOM_SPHERE,
+                    size=[0.02, 0, 0],
+                    pos=np.array([self.target[0], self.target[1], 0]),
+                    mat=np.eye(3).flatten(),
+                    rgba=np.array([1.0, 0.1, 0.1, 1.0]),
+                )
                 self.init_visuals = True
             else:
-                self.viewer.user_scn.geoms[self.viewer.user_scn.ngeom-1].pos[:] = np.array([self.target[0], self.target[1], 0.0])
+                self.viewer.user_scn.geoms[self.viewer.user_scn.ngeom - 1].pos[:] = (
+                    np.array([self.target[0], self.target[1], 0.0])
+                )
 
             self.viewer.sync()
 
@@ -56,14 +58,19 @@ class Arm26:
         return self.compute_obs()
 
     def compute_obs(self):
-        np.concatenate([self.mj_data.qpos.copy(),
-                       self.mj_data.qvel.copy(),
-                       self.muscle_length(),
-                       self.muscle_velocity(),
-                       self.muscle_activity(),
-                       self.muscle_force(),
-                       self.target.copy()], dtype=np.float32).copy()
-        
+        np.concatenate(
+            [
+                self.mj_data.qpos.copy(),
+                self.mj_data.qvel.copy(),
+                self.muscle_length(),
+                self.muscle_velocity(),
+                self.muscle_activity(),
+                self.muscle_force(),
+                self.target.copy(),
+            ],
+            dtype=np.float32,
+        ).copy()
+
     def step(self, action):
         if not self.init:
             raise Exception("Reset has to be called once before step")
@@ -73,10 +80,9 @@ class Arm26:
 
     def render(self):
         if not hasattr(self, "viewer"):
-            self.viewer = viewer.launch_passive(self.mj_model, 
-                                                self.mj_data,
-                                                show_left_ui=False,
-                                                show_right_ui=False)
+            self.viewer = viewer.launch_passive(
+                self.mj_model, self.mj_data, show_left_ui=False, show_right_ui=False
+            )
             self.viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_ACTUATOR] = True
             self.viewer.sync()
         with self.viewer.lock():

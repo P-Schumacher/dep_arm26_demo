@@ -24,9 +24,7 @@ class DEP:
         """
         if params_path == "default_path":
             dirname = os.path.dirname(__file__)
-            params_path = os.path.join(
-                dirname, "assets/dep_params.json"
-            )
+            params_path = os.path.join(dirname, "assets/dep_params.json")
 
         with open(params_path, "r") as f:
             self.params = json.load(f)["DEP"]
@@ -35,9 +33,7 @@ class DEP:
         """
         Tonic function that saves action and observation spaces.
         """
-        action_space = gym.spaces.Box(
-            low=-1, high=1, shape=(action_space.shape)
-        )
+        action_space = gym.spaces.Box(low=-1, high=1, shape=(action_space.shape))
         self.num_sensors = action_space.shape[0]
         self.num_motors = action_space.shape[0]
         self.n_env = 1
@@ -86,9 +82,7 @@ class DEP:
         # Unnormalized controller matrix
         self.C = torch.zeros((self.n_env, self.num_motors, self.num_sensors))
         # Normalized controller matrix
-        self.C_norm = torch.zeros(
-            (self.n_env, self.num_motors, self.num_sensors)
-        )
+        self.C_norm = torch.zeros((self.n_env, self.num_motors, self.num_sensors))
         # Controller biases
         self.Cb = torch.zeros((self.n_env, self.num_motors))
         # Filtered observation
@@ -156,9 +150,7 @@ class DEP:
         )
         y = torch.maximum(
             torch.tensor([-1.0]),
-            torch.minimum(
-                torch.tensor([1.0]), torch.tanh(q * self.kappa + self.Cb)
-            ),
+            torch.minimum(torch.tensor([1.0]), torch.tanh(q * self.kappa + self.Cb)),
         )
         y = torch.einsum("ij, j->ij", y, self.act_scale)
         return y
@@ -187,9 +179,7 @@ class DEP:
 
         if self.bias_rate >= 0:
             yy = self.buffer[-2][1]
-            self.Cb -= (
-                torch.clip(yy * self.bias_rate, -0.05, 0.05) + self.Cb * 0.001
-            )
+            self.Cb -= torch.clip(yy * self.bias_rate, -0.05, 0.05) + self.Cb * 0.001
         else:
             self.Cb *= 0
 
@@ -209,9 +199,7 @@ class DEP:
                 if self.time_dist == 0
                 else self.buffer[-s - self.time_dist][0][:, : self.num_sensors]
             )
-            xxx_t = self.buffer[-s - 1 - self.time_dist][0][
-                :, : self.num_sensors
-            ]
+            xxx_t = self.buffer[-s - 1 - self.time_dist][0][:, : self.num_sensors]
 
             chi = x - xx
             v = xx_t - xxx_t
