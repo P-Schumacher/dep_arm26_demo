@@ -1,5 +1,5 @@
 # dep_arm26_demo
-
+Basic demo to demonstrate DEP exploration on the arm26 example.
 
 To run the demo, simply clone this repo with
 
