@@ -2,3 +2,4 @@ torch
 mujoco
 gym
 numpy
+sk-video

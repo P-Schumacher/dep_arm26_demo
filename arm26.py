@@ -5,8 +5,25 @@ import os
 import gym
 import numpy as np
 from dep_controller import DEP
+import skvideo.io
 
 FRAMESKIP = 2
+FRAMERATE = 30
+
+# offline without sphere drawing so far
+OFFLINE_RENDER = False
+curr_dir = os.path.dirname(os.path.realpath(__file__))
+
+
+def save_video(frames):
+    save_path = os.path.join(curr_dir, "rendered_video.mp4")
+    print(f"Saving video to: {save_path}")
+    skvideo.io.vwrite(
+        save_path,
+        np.asarray(frames),
+        outputdict={"-pix_fmt": "yuv420p"},
+        inputdict={"-r": str(FRAMERATE)},
+    )
 
 
 class Arm26:
@@ -82,15 +99,29 @@ class Arm26:
         return self.compute_obs(), reward, done, {}
 
     def render(self):
-        if not hasattr(self, "viewer"):
-            self.viewer = viewer.launch_passive(
-                self.mj_model, self.mj_data, show_left_ui=False, show_right_ui=False
-            )
-            self.viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_ACTUATOR] = True
+        if not OFFLINE_RENDER:
+            if not hasattr(self, "viewer"):
+                self.viewer = viewer.launch_passive(
+                    self.mj_model, self.mj_data, show_left_ui=False, show_right_ui=False
+                )
+                self.viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_ACTUATOR] = True
+                self.viewer.sync()
+            with self.viewer.lock():
+                self.draw_sphere()
             self.viewer.sync()
-        with self.viewer.lock():
-            self.draw_sphere()
-        self.viewer.sync()
+            time.sleep(0.01)
+
+        else:
+            if not hasattr(self, "renderer"):
+                self.renderer = mujoco.Renderer(
+                    self.mj_model,
+                    height=420,
+                    width=640,
+                )
+                self.frames = []
+            self.renderer.update_scene(self.mj_data, camera="camera_view")
+            frame = self.renderer.render()
+            self.frames.append(frame)
 
     def muscle_length(self):
         return self.mj_data.actuator_length.copy()
@@ -111,10 +142,12 @@ if __name__ == "__main__":
     dep = DEP()
     dep.initialize(env.observation_space, env.action_space)
 
-    for ep in range(10):
+    for ep in range(2):
         env.reset()
-        for i in range(1000):
+        for i in range(100):
             action = dep.step(env.muscle_length())
             env.step(action)
             env.render()
-            time.sleep(0.01)
+
+    if OFFLINE_RENDER:
+        save_video(env.frames)

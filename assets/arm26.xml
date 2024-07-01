@@ -37,6 +37,7 @@
     <geom name="floor" pos="0 0 -0.5" size="0 0 1" type="plane" material="matplane"/>
 
     <light directional="true" diffuse=".8 .8 .8" specular=".2 .2 .2" pos="0 0 5" dir="0 0 -1"/>
+    <camera name="camera_view" pos="-3 0 2.25" xyaxes="0 -1 0 1 0 2" mode="trackcom"/>
 
     <site name="s0" pos="-0.15 0 0" size="0.02"/>
     <site name="x0" pos="0 -0.15 0" size="0.02" rgba="0 .7 0 1" group="1"/>
